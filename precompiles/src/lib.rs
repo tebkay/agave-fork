@@ -34,13 +34,15 @@ impl Precompile {
     }
     /// Check if a program id is this precompiled program
     pub fn check_id<F>(&self, program_id: &Pubkey, is_enabled: F) -> bool
-    where
-        F: Fn(&Pubkey) -> bool,
-    {
-        self.feature
-            .is_none_or(|ref feature_id| is_enabled(feature_id))
-            && self.program_id == *program_id
-    }
+where
+    F: Fn(&Pubkey) -> bool,
+{
+    let feature_enabled = match &self.feature {
+        None => true,
+        Some(feature_id) => is_enabled(feature_id),
+    };
+    feature_enabled && self.program_id == *program_id
+}
     /// Verify this precompiled program
     pub fn verify(
         &self,
